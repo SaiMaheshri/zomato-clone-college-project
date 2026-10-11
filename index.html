@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zomato Clone – Discover the best food & drinks</title>
+  <meta name="description" content="A Zomato-inspired food ordering & restaurant discovery demo." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍕</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ================= LOADER ================= -->
+  <div class="loader" id="loader">
+    <div class="loader-logo">
+      <span>z</span><span>o</span><span>m</span><span>a</span><span>t</span><span>o</span>
+    </div>
+    <div class="loader-bar"><span></span></div>
+  </div>
+
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#home" class="logo">zomato</a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#home">Home</a>
+        <a href="#collections">Collections</a>
+        <a href="#restaurants">Restaurants</a>
+        <a href="#app">Get the App</a>
+        <div class="auth-area" id="authArea"></div>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
+        <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open cart">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="home">
+    <div class="hero-bg" id="heroBg"><div class="hero-bg-img"></div></div>
+    <div class="hero-overlay"></div>
+
+    <div class="floating-food" aria-hidden="true">
+      <span style="--x:5%;  --d:0s;  --t:14s; --s:38px">🍕</span>
+      <span style="--x:15%; --d:4s;  --t:18s; --s:30px">🍔</span>
+      <span style="--x:27%; --d:8s;  --t:16s; --s:34px">🍜</span>
+      <span style="--x:40%; --d:2s;  --t:20s; --s:28px">🍩</span>
+      <span style="--x:55%; --d:6s;  --t:15s; --s:36px">🌮</span>
+      <span style="--x:68%; --d:1s;  --t:19s; --s:30px">🍣</span>
+      <span style="--x:78%; --d:9s;  --t:17s; --s:34px">🥗</span>
+      <span style="--x:88%; --d:3s;  --t:14s; --s:38px">🍦</span>
+      <span style="--x:95%; --d:11s; --t:18s; --s:28px">🍛</span>
+    </div>
+
+    <div class="hero-content container">
+      <h1 class="hero-logo">zomato</h1>
+      <p class="hero-tagline">Discover the best food &amp; drinks in <span class="typed" id="typed"></span><span class="caret">|</span></p>
+
+      <div class="search-box">
+        <div class="location-select">
+          <i class="fa-solid fa-location-dot"></i>
+          <select id="citySelect" aria-label="Select city"></select>
+        </div>
+        <div class="divider"></div>
+        <div class="search-input">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" type="text" placeholder="Search for restaurant, cuisine or a dish" autocomplete="off" />
+          <button class="clear-search" id="clearSearch" aria-label="Clear search" hidden><i class="fa-solid fa-xmark"></i></button>
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+      </div>
+    </div>
+
+    <a href="#modes" class="hero-scroll" aria-label="Scroll down"><span></span></a>
+  </section>
+
+  <!-- ================= MODE CARDS ================= -->
+  <section class="section modes" id="modes">
+    <div class="container mode-cards">
+      <div class="mode-card reveal" data-mode="delivery" data-scroll>
+        <div class="mode-img"><img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=75" alt="Order online" onerror="imgFallback(this)" /></div>
+        <div class="mode-body">
+          <h3>Order Online</h3>
+          <p>Stay home and order to your doorstep</p>
+        </div>
+      </div>
+      <div class="mode-card reveal" data-mode="dining" data-scroll style="--delay:.12s">
+        <div class="mode-img"><img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=75" alt="Dining" onerror="imgFallback(this)" /></div>
+        <div class="mode-body">
+          <h3>Dining</h3>
+          <p>View the city's favourite dining venues</p>
+        </div>
+      </div>
+      <div class="mode-card reveal" data-mode="nightlife" data-scroll style="--delay:.24s">
+        <div class="mode-img"><img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=800&q=75" alt="Nightlife" onerror="imgFallback(this)" /></div>
+        <div class="mode-body">
+          <h3>Nightlife and Clubs</h3>
+          <p>Explore the city's top nightlife outlets</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COLLECTIONS ================= -->
+  <section class="section" id="collections">
+    <div class="container">
+      <div class="section-head reveal">
+        <div>
+          <h2>Collections</h2>
+          <p class="muted">Explore curated lists of top restaurants, cafes, pubs, and bars in <span class="city-name">Delhi NCR</span>, based on trends</p>
+        </div>
+      </div>
+      <div class="collections-grid" id="collectionsGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= INSPIRATION ================= -->
+  <section class="section soft" id="inspiration">
+    <div class="container">
+      <div class="section-head reveal">
+        <div>
+          <h2>Inspiration for your first order</h2>
+          <p class="muted">Tap a dish to see restaurants serving it</p>
+        </div>
+        <div class="slider-btns">
+          <button class="round-btn" data-slide="-1" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="round-btn" data-slide="1" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="food-slider" id="foodSlider"></div>
+    </div>
+  </section>
+
+  <!-- ================= RESTAURANTS ================= -->
+  <section class="section" id="restaurants">
+    <div class="container">
+      <div class="tabs" id="modeTabs">
+        <button class="tab active" data-mode="delivery"><span class="tab-icon"><i class="fa-solid fa-motorcycle"></i></span>Delivery</button>
+        <button class="tab" data-mode="dining"><span class="tab-icon"><i class="fa-solid fa-utensils"></i></span>Dining Out</button>
+        <button class="tab" data-mode="nightlife"><span class="tab-icon"><i class="fa-solid fa-champagne-glasses"></i></span>Nightlife</button>
+        <span class="tab-indicator" id="tabIndicator"></span>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="chip" data-filter="rating"><i class="fa-solid fa-star"></i> Rating 4.0+</button>
+        <button class="chip" data-filter="veg"><i class="fa-solid fa-leaf"></i> Pure Veg</button>
+        <button class="chip" data-filter="fast"><i class="fa-solid fa-bolt"></i> Fast Delivery</button>
+        <button class="chip" data-filter="offers"><i class="fa-solid fa-percent"></i> Great Offers</button>
+        <button class="chip" data-filter="fav"><i class="fa-solid fa-heart"></i> Favourites</button>
+        <div class="sort-wrap">
+          <i class="fa-solid fa-arrow-down-wide-short"></i>
+          <select id="sortSelect" aria-label="Sort restaurants">
+            <option value="relevance">Relevance</option>
+            <option value="rating">Rating: High to Low</option>
+            <option value="time">Delivery Time</option>
+            <option value="costLow">Cost: Low to High</option>
+            <option value="costHigh">Cost: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="active-filters" id="activeFilters"></div>
+
+      <div class="section-head compact">
+        <h2 id="restaurantsTitle">Delivery Restaurants in Delhi NCR</h2>
+        <span class="result-count" id="resultCount"></span>
+      </div>
+
+      <div class="restaurant-grid" id="restaurantGrid"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <div class="empty-emoji">🍽️</div>
+        <h3>No restaurants found</h3>
+        <p class="muted">Try removing some filters or searching for something else.</p>
+        <button class="btn primary" data-clear>Clear all filters</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STATS ================= -->
+  <section class="stats">
+    <div class="container stats-grid">
+      <div class="stat reveal"><i class="fa-solid fa-store"></i><h3 class="stat-num" data-count="300000" data-suffix="+">0</h3><p>Restaurants</p></div>
+      <div class="stat reveal" style="--delay:.1s"><i class="fa-solid fa-city"></i><h3 class="stat-num" data-count="800" data-suffix="+">0</h3><p>Cities</p></div>
+      <div class="stat reveal" style="--delay:.2s"><i class="fa-solid fa-box"></i><h3 class="stat-num" data-count="3000" data-suffix=" Cr+">0</h3><p>Orders delivered</p></div>
+      <div class="stat reveal" style="--delay:.3s"><i class="fa-solid fa-face-smile"></i><h3 class="stat-num" data-count="98" data-suffix="%">0</h3><p>Happy customers</p></div>
+    </div>
+  </section>
+
+  <!-- ================= GET THE APP ================= -->
+  <section class="section soft app-section" id="app">
+    <div class="container app-grid">
+      <div class="phone-wrap reveal">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="ps-head">
+              <span class="ps-logo">zomato</span>
+              <i class="fa-solid fa-user-circle"></i>
+            </div>
+            <div class="ps-search"><i class="fa-solid fa-magnifying-glass"></i> Search "biryani"</div>
+            <div class="ps-banner"><b>50% OFF</b><span>on your first order</span></div>
+            <div class="ps-row">
+              <div class="ps-circle">🍕</div><div class="ps-circle">🍔</div><div class="ps-circle">🍜</div><div class="ps-circle">🍰</div>
+            </div>
+            <div class="ps-card"><div class="ps-img"></div><div class="ps-line"></div><div class="ps-line short"></div></div>
+            <div class="ps-card"><div class="ps-img alt"></div><div class="ps-line"></div><div class="ps-line short"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-content reveal" style="--delay:.15s">
+        <h2>Get the Zomato app</h2>
+        <p class="muted">We will send you a link, open it on your phone to download the app</p>
+        <form id="appForm" class="app-form" novalidate>
+          <div class="radio-row">
+            <label><input type="radio" name="via" value="email" checked /> <span>Email</span></label>
+            <label><input type="radio" name="via" value="phone" /> <span>Phone</span></label>
+          </div>
+          <div class="app-input-row">
+            <input type="text" id="appInput" placeholder="Email" />
+            <button class="btn primary" type="submit">Share App Link</button>
+          </div>
+        </form>
+        <p class="muted small">Download app from</p>
+        <div class="store-btns">
+          <a href="#" class="store-btn" onclick="event.preventDefault();toast('Demo only – no real app 😉','info')"><i class="fa-brands fa-google-play"></i><span><small>GET IT ON</small>Google Play</span></a>
+          <a href="#" class="store-btn" onclick="event.preventDefault();toast('Demo only – no real app 😉','info')"><i class="fa-brands fa-apple"></i><span><small>Download on the</small>App Store</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPLORE ================= -->
+  <section class="section" id="explore">
+    <div class="container">
+      <div class="section-head reveal"><h2>Explore options near me</h2></div>
+      <div class="accordion" id="accordion"></div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <span class="logo dark">zomato</span>
+        <div class="footer-selects">
+          <button class="pill-select"><span>🇮🇳</span> India <i class="fa-solid fa-chevron-down"></i></button>
+          <button class="pill-select"><i class="fa-solid fa-globe"></i> English <i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+      </div>
+      <div class="footer-cols">
+        <div>
+          <h4>About Zomato</h4>
+          <a href="#">Who We Are</a><a href="#">Blog</a><a href="#">Work With Us</a><a href="#">Investor Relations</a><a href="#">Report Fraud</a>
+        </div>
+        <div>
+          <h4>Zomaverse</h4>
+          <a href="#">Zomato</a><a href="#">Blinkit</a><a href="#">Feeding India</a><a href="#">Hyperpure</a><a href="#">Zomaland</a>
+        </div>
+        <div>
+          <h4>For Restaurants</h4>
+          <a href="#">Partner With Us</a><a href="#">Apps For You</a>
+          <h4 class="mt">For Enterprises</h4>
+          <a href="#">Zomato For Work</a>
+        </div>
+        <div>
+          <h4>Learn More</h4>
+          <a href="#">Privacy</a><a href="#">Security</a><a href="#">Terms</a><a href="#">Sitemap</a>
+        </div>
+        <div>
+          <h4>Social Links</h4>
+          <div class="socials">
+            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          </div>
+        </div>
+      </div>
+      <p class="footer-note">
+        This is a personal demo project inspired by Zomato, built for learning purposes. It is not affiliated with Zomato Ltd.
+        No real orders are placed. © <span id="year"></span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ================= RESTAURANT MENU MODAL ================= -->
+  <div class="modal" id="menuModal" aria-hidden="true">
+    <div class="modal-box menu-box">
+      <button class="modal-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <div id="menuContent"></div>
+      <div class="view-cart-bar" id="viewCartBar">
+        <span id="viewCartText">1 item | ₹0</span>
+        <button class="btn light" id="viewCartBtn">View Cart <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CART DRAWER ================= -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h3><i class="fa-solid fa-bag-shopping"></i> Your Cart</h3>
+      <button class="icon-btn" id="closeDrawer" aria-label="Close cart"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="drawer-body" id="cartBody"></div>
+    <div class="drawer-foot" id="cartFoot"></div>
+  </aside>
+
+  <!-- ================= AUTH MODAL ================= -->
+  <div class="modal" id="authModal" aria-hidden="true">
+    <div class="modal-box auth-box">
+      <button class="modal-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth-tab="login">Log in</button>
+        <button class="auth-tab" data-auth-tab="signup">Sign up</button>
+      </div>
+
+      <form class="auth-form active" id="loginForm" novalidate>
+        <div class="login-step" id="loginStep1">
+          <label class="field">
+            <span class="prefix">🇮🇳 +91</span>
+            <input type="tel" id="loginPhone" maxlength="10" placeholder="Phone number" />
+          </label>
+          <button class="btn primary block" type="submit">Send One Time Password</button>
+        </div>
+        <div class="login-step" id="loginStep2" hidden>
+          <p class="muted center">Enter the 4-digit OTP sent to <b id="otpPhone"></b><br /><small>(Demo: any 4 digits work)</small></p>
+          <div class="otp-row">
+            <input class="otp" maxlength="1" inputmode="numeric" />
+            <input class="otp" maxlength="1" inputmode="numeric" />
+            <input class="otp" maxlength="1" inputmode="numeric" />
+            <input class="otp" maxlength="1" inputmode="numeric" />
+          </div>
+          <button class="btn primary block" type="submit">Verify &amp; Log in</button>
+          <button class="link-btn" type="button" id="changePhone">Change number</button>
+        </div>
+        <div class="or"><span>or</span></div>
+        <button class="btn outline block google-btn" type="button" data-google><i class="fa-brands fa-google"></i> Continue with Google</button>
+      </form>
+
+      <form class="auth-form" id="signupForm" novalidate>
+        <input class="input" type="text" id="signupName" placeholder="Full Name" />
+        <input class="input" type="email" id="signupEmail" placeholder="Email" />
+        <label class="check"><input type="checkbox" id="signupTerms" /> I agree to Zomato's <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a></label>
+        <button class="btn primary block" type="submit">Create account</button>
+        <div class="or"><span>or</span></div>
+        <button class="btn outline block google-btn" type="button" data-google><i class="fa-brands fa-google"></i> Sign up with Google</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= ORDER SUCCESS MODAL ================= -->
+  <div class="modal" id="orderModal" aria-hidden="true">
+    <div class="modal-box order-box">
+      <button class="modal-close" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <svg class="checkmark" viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="none" /><path fill="none" d="M14 27l8 8 16-16" /></svg>
+      <h2>Order placed successfully!</h2>
+      <p class="muted" id="orderInfo"></p>
+      <div class="tracker">
+        <div class="tracker-line"><span id="trackerFill"></span></div>
+        <div class="track-step" data-step="0"><i class="fa-solid fa-receipt"></i><span>Order placed</span></div>
+        <div class="track-step" data-step="1"><i class="fa-solid fa-fire-burner"></i><span>Preparing</span></div>
+        <div class="track-step" data-step="2"><i class="fa-solid fa-motorcycle"></i><span>On the way</span></div>
+        <div class="track-step" data-step="3"><i class="fa-solid fa-house-circle-check"></i><span>Delivered</span></div>
+      </div>
+      <p class="track-status" id="trackStatus">Restaurant has received your order</p>
+      <button class="btn primary" data-close>Continue exploring</button>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+  <script src="script.js"></script>
+</body>
+</html>

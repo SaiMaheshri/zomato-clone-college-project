@@ -1,0 +1,5 @@
+node_modules/
+backend/node_modules/
+backend/zomato.db
+backend/orders.json
+.env
