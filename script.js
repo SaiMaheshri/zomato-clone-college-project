@@ -1041,7 +1041,7 @@ async function placeOrder() {
   const r = getRestaurant(state.cart.restId);
     // Send the cart order to the backend
   try {
-    const response = await fetch('http://localhost:3000/api/orders', {
+    const response = await fetch('/api/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1505,7 +1505,7 @@ init();
 async function loadRestaurantsFromBackend() {
   try {
     const response = await fetch(
-      'http://localhost:3000/api/restaurants'
+      '/api/restaurants'
     );
 
     if (!response.ok) {
