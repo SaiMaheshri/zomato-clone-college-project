@@ -785,3 +785,14 @@ button.meta-pill:hover { transform: translateY(-2px); }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* Hide website content until login */
+body:not(.logged-in) #navbar,
+body:not(.logged-in) #home,
+body:not(.logged-in) #modes,
+body:not(.logged-in) #collections,
+body:not(.logged-in) #restaurants,
+body:not(.logged-in) #app,
+body:not(.logged-in) footer {
+  display: none !important;
+}

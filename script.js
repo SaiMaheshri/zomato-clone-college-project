@@ -983,12 +983,25 @@ function renderCart() {
       <div class="bill-row total"><span>To Pay</span><span>${rupee(t.total)}</span></div>
     </div>`;
 
-  foot.innerHTML = `
-    <textarea class="address" id="address" rows="2" placeholder="Delivery address (e.g. Flat 21, Green Park, ${state.city})">${escapeHTML(store.get('zc_address', ''))}</textarea>
-    <button class="btn primary checkout-btn" id="placeOrder">
-      <span>${rupee(t.total)} <small>TOTAL</small></span>
-      <span>Place Order <i class="fa-solid fa-arrow-right"></i></span>
-    </button>`;
+    foot.innerHTML = `
+  <textarea
+    class="address"
+    id="address"
+    rows="2"
+    placeholder="Delivery address (e.g. Flat 21, Green Park, ${state.city})"
+  >${escapeHTML(store.get('zc_address', ''))}</textarea>
+
+  <label for="paymentMethod">Select Payment Method</label>
+  <select class="address" id="paymentMethod">
+    <option value="COD">Cash on Delivery</option>
+    <option value="UPI_DEMO">UPI (Demo)</option>
+    <option value="CARD_DEMO">Card (Demo)</option>
+  </select>
+
+  <button class="btn primary checkout-btn" id="placeOrder">
+    <span>${rupee(t.total)} <small>TOTAL</small></span>
+    <span>Place Order <i class="fa-solid fa-arrow-right"></i></span>
+  </button>`;
 }
 
 function openCart() {
@@ -1031,6 +1044,7 @@ async function placeOrder() {
 
   const addressEl = $('#address');
   const address = addressEl.value.trim();
+  const paymentMethod = $('#paymentMethod')?.value || 'COD';
   if (address.length < 6) {
     flagError(addressEl);
     addressEl.focus();
@@ -1049,6 +1063,7 @@ async function placeOrder() {
       body: JSON.stringify({
         customerName: state.user?.name || 'Demo Customer',
         address: address,
+        paymentMethod: paymentMethod,
         items: t.lines.map(line => ({
           name: line.item.name,
           quantity: line.qty,
@@ -1120,10 +1135,15 @@ function launchConfetti(count = 140) {
    AUTH
    ========================================================= */
 function openAuth(tab = 'login') {
-  switchAuthTab(tab);
-  resetLogin();
   openModal('authModal');
-  setTimeout(() => (tab === 'login' ? $('#loginPhone') : $('#signupName')).focus(), 350);
+  switchAuthTab(tab);
+
+  setTimeout(() => {
+    const input =
+      tab === 'login' ? $('#loginEmail') : $('#signupName');
+
+    if (input) input.focus();
+  }, 350);
 }
 
 function switchAuthTab(tab) {
@@ -1141,6 +1161,7 @@ function resetLogin() {
 function loginUser(user) {
   const resumeCheckout = state.pendingCheckout;
   state.user = user;
+  document.body.classList.add('logged-in');
   store.set('zc_user', user);
   renderAuthArea();
   closeModal('authModal');
@@ -1153,11 +1174,13 @@ function renderAuthArea() {
   if (state.user) {
     const first = escapeHTML(state.user.name.split(' ')[0]);
     el.innerHTML = `
+    <button data-user-action="profile">My Profile</button>
       <div class="user-chip" id="userChip">
         <span class="avatar">${first.charAt(0).toUpperCase()}</span>
         <span>${first}</span>
         <i class="fa-solid fa-chevron-down small"></i>
         <div class="user-menu">
+           
           <button data-user-action="favs"><i class="fa-solid fa-heart"></i> Favourites</button>
           <button data-user-action="cart"><i class="fa-solid fa-bag-shopping"></i> My Cart</button>
           <button data-user-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Log out</button>
@@ -1171,77 +1194,139 @@ function renderAuthArea() {
 function userAction(action) {
   $('#userChip')?.classList.remove('open');
   closeNav();
-  if (action === 'favs') {
+
+ if (action === 'profile') {
+  const user = state.user || {};
+
+  $('#profileName').textContent = user.name || '—';
+  $('#profileEmail').textContent = user.email || '—';
+  $('#profilePhone').textContent = user.phone || 'Not added';
+  $('#profileGender').textContent = user.gender || 'Not added';
+  $('#profileAge').textContent = user.age ? `${user.age} years` : 'Not added';
+
+  openModal('profileModal');
+} else if (action === 'favs') {
     state.filters.add('fav');
     renderRestaurants();
     scrollToRestaurants();
   } else if (action === 'cart') {
     openCart();
   } else if (action === 'logout') {
+    fetch('/api/auth/logout', {
+      method: 'POST'
+    }).catch(error => {
+      console.error('Logout error:', error);
+    });
+
     state.user = null;
+    document.body.classList.remove('logged-in');
     store.set('zc_user', null);
     renderAuthArea();
+    openAuth('login');
     toast('Logged out successfully', 'info');
   }
 }
-
 function setupAuthForms() {
-  const otps = $$('.otp');
+  const loginForm = $('#loginForm');
+  const signupForm = $('#signupForm');
 
-  $('#loginForm').addEventListener('submit', e => {
+  // Login using email and password
+  loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const phone = $('#loginPhone').value.trim();
-    if (!$('#loginStep1').hidden) {
-      if (!/^[6-9]\d{9}$/.test(phone)) {
-        flagError($('#loginPhone').closest('.field'));
-        toast('Enter a valid 10-digit mobile number', 'error');
+
+    const email = $('#loginEmail').value.trim();
+    const password = $('#loginPassword').value;
+
+    if (!email || !password) {
+      toast('Please enter your email and password.', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        toast(data.message || 'Login failed.', 'error');
         return;
       }
-      $('#otpPhone').textContent = '+91 ' + phone;
-      $('#loginStep1').hidden = true;
-      $('#loginStep2').hidden = false;
-      otps[0].focus();
-      toast('OTP sent! (Demo: enter any 4 digits)', 'info');
-    } else {
-      const code = otps.map(o => o.value).join('');
-      if (!/^\d{4}$/.test(code)) {
-        otps.forEach(flagError);
-        toast('Enter the 4-digit OTP', 'error');
-        return;
-      }
-      loginUser({ name: 'Foodie', phone });
+
+      loginUser(data.user);
+      loginForm.reset();
+    } catch (error) {
+      console.error('Login error:', error);
+      toast('Unable to connect to the server.', 'error');
     }
   });
 
-  $('#loginPhone').addEventListener('input', e => (e.target.value = e.target.value.replace(/\D/g, '')));
-  $('#changePhone').addEventListener('click', () => { resetLogin(); $('#loginPhone').focus(); });
-
-  otps.forEach((input, i) => {
-    input.addEventListener('input', () => {
-      input.value = input.value.replace(/\D/g, '').slice(-1);
-      if (input.value && otps[i + 1]) otps[i + 1].focus();
-    });
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Backspace' && !input.value && otps[i - 1]) otps[i - 1].focus();
-    });
-    input.addEventListener('paste', e => {
-      const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4);
-      if (!digits) return;
-      e.preventDefault();
-      otps.forEach((o, j) => (o.value = digits[j] || ''));
-      otps[Math.min(digits.length, 3)].focus();
-    });
-  });
-
-  $('#signupForm').addEventListener('submit', e => {
+  // Register a new account
+  signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const name = $('#signupName').value.trim();
     const email = $('#signupEmail').value.trim();
-    if (name.length < 2) { flagError($('#signupName')); return toast('Please enter your name', 'error'); }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { flagError($('#signupEmail')); return toast('Please enter a valid email', 'error'); }
-    if (!$('#signupTerms').checked) return toast('Please accept the terms to continue', 'error');
-    loginUser({ name, email });
-    e.target.reset();
+    const password = $('#signupPassword').value;
+    const gender = $('#signupGender').value;
+     const age = Number($('#signupAge').value);
+     const phone = $('#signupPhone').value.trim();
+
+if (!gender || !Number.isInteger(age) || age < 13 || age > 120) {
+  toast('Please select your gender and enter a valid age.', 'error');
+  return;
+}
+
+    if (name.length < 2) {
+      flagError($('#signupName'));
+      toast('Please enter your name.', 'error');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      flagError($('#signupEmail'));
+      toast('Please enter a valid email.', 'error');
+      return;
+    }
+
+    if (password.length < 8 || password.length > 128) {
+      flagError($('#signupPassword'));
+      toast('Password must be between 8 and 128 characters.', 'error');
+      return;
+    }
+
+    if (!$('#signupTerms').checked) {
+      toast('Please accept the terms to continue.', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password, gender, age, phone })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        toast(data.message || 'Registration failed.', 'error');
+        return;
+      }
+
+      signupForm.reset();
+      loginUser(data.user);
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast('Unable to connect to the server.', 'error');
+    }
   });
 }
 
@@ -1451,7 +1536,20 @@ function hideLoader() {
 /* =========================================================
    INIT
    ========================================================= */
-function init() {
+async function init() {
+  try {
+  const response = await fetch('/api/auth/me');
+  const data = await response.json();
+
+  if (response.ok && data.success && data.user) {
+    state.user = data.user;
+  } else {
+    state.user = null;
+  }
+} catch (error) {
+  state.user = null;
+}
+  
   applyTheme(store.get('zc_theme', 'light'));
   sanitizeCart();
   typer.el = $('#typed');
@@ -1461,6 +1559,12 @@ function init() {
   renderFoods();
   renderExplore();
   renderAuthArea();
+  openAuth('login');
+  document.body.classList.toggle('logged-in', !!state.user);
+
+if (!state.user) {
+  openAuth('login');
+}
   renderRestaurants();
   updateCartUI();
 
